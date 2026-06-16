@@ -1,0 +1,107 @@
+.nav {
+  background: #141414;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.45);
+}
+
+.inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.brandName {
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 3.5px;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+
+.links {
+  display: flex;
+  flex: 1;
+}
+
+.link {
+  color: rgba(255,255,255,0.55);
+  text-decoration: none;
+  padding: 1.15rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  display: block;
+  transition: color 0.15s, background 0.15s;
+  border-bottom: 2px solid transparent;
+}
+
+.link:hover {
+  color: rgba(255,255,255,0.9);
+}
+
+.link.active {
+  color: #fff;
+  border-bottom-color: #C8171A;
+}
+
+.userArea {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.userName {
+  color: rgba(255,255,255,0.7);
+  font-size: 0.82rem;
+}
+
+.paidBadge {
+  background: #C8171A;
+  color: white;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 2px 7px;
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+
+.logoutBtn {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.55);
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.logoutBtn:hover {
+  border-color: #C8171A;
+  color: #C8171A;
+}
+
+@media (max-width: 768px) {
+  .userArea { display: none; }
+  .brandName { display: none; }
+  .link { padding: 1.15rem 0.6rem; font-size: 0.72rem; }
+}

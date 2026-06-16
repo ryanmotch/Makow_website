@@ -1,0 +1,11 @@
+.eyebrow { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: #C8171A; font-weight: 600; margin-bottom: 0.4rem; }
+.header { margin-bottom: 2.5rem; }
+.title { font-size: 2rem; }
+.sub { color: #6B6B6B; max-width: 520px; line-height: 1.65; margin-top: 0.4rem; }
+.formWrap { max-width: 720px; background: #fff; border: 1px solid #E4E2DE; border-radius: 6px; padding: 2rem 2.2rem; }
+.submitBtn { width: 100%; padding: 13px; font-size: 0.9rem; justify-content: center; margin-top: 0.5rem; }
+
+.success { max-width: 520px; margin: 6rem auto; text-align: center; padding: 0 1.5rem; }
+.successIcon { font-size: 3.5rem; margin-bottom: 1rem; }
+.success h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 0.2rem; }
+.success p { color: #6B6B6B; line-height: 1.7; margin-top: 0.8rem; }

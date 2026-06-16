@@ -1,0 +1,9 @@
+.page { display: flex; justify-content: center; padding: 4rem 1.5rem; min-height: 70vh; align-items: center; }
+.card { background: #fff; border: 1px solid #E4E2DE; border-radius: 6px; padding: 2.2rem; width: 100%; max-width: 420px; }
+.title { font-family: 'Playfair Display', serif; font-size: 1.7rem; text-align: center; }
+.sub { color: #6B6B6B; font-size: 0.9rem; text-align: center; margin-top: 0.3rem; }
+.submitBtn { width: 100%; justify-content: center; padding: 12px; margin-top: 0.5rem; }
+.switchLink { text-align: center; font-size: 0.875rem; color: #6B6B6B; margin-top: 1.2rem; }
+.switchLink a { color: #C8171A; font-weight: 500; }
+.demo { margin-top: 1rem; padding: 0.8rem 1rem; background: #F5F4F2; border-radius: 4px; font-size: 0.8rem; color: #6B6B6B; text-align: center; }
+.demo strong { color: #3A3A3A; }

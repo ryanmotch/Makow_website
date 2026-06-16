@@ -1,0 +1,13 @@
+.header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; }
+.title { font-family: 'Playfair Display', serif; font-size: 1.9rem; }
+.sub { color: #6B6B6B; font-size: 0.9rem; margin-top: 0.3rem; }
+
+.statsRow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 2rem; }
+.stat { background: #141414; border-radius: 6px; padding: 1.2rem; text-align: center; display: flex; flex-direction: column; gap: 4px; }
+.statNum { font-family: 'Playfair Display', serif; font-size: 2rem; color: #C8171A; font-weight: 700; line-height: 1; }
+.statLabel { font-size: 0.72rem; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.7px; }
+
+.msgRow { background: #FAFAF9 !important; color: #6B6B6B; font-size: 0.83rem; border-bottom: 2px solid #E4E2DE; }
+
+@media (max-width: 768px) { .statsRow { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 480px) { .statsRow { grid-template-columns: repeat(2, 1fr); } }
