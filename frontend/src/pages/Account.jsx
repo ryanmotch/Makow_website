@@ -103,7 +103,7 @@ export default function Account() {
         <div className={styles.archivePromo}>
           <div>
             <strong>⭐ Polish Vital Records Search</strong>
-            <p>Search 55M+ scans of birth, marriage &amp; death records from Polish state archives via Szukaj w Archiwach.</p>
+            <p>Search 55M+ scans of birth, marriage &amp; death records from Polish state archives.</p>
           </div>
           <Link to="/polish-archives" className="btn btn-primary btn-sm" style={{ marginLeft: 'auto', whiteSpace: 'nowrap' }}>
             Search Archives →
@@ -111,39 +111,6 @@ export default function Account() {
         </div>
       )}
 
-      {/* Search area for paid users */}
-      {user?.is_paid && (
-        <div className={styles.searchArea}>
-          <h3 className={styles.searchTitle}>🔍 Search Genealogy Records</h3>
-          <div className="form-row">
-            <div className="form-group">
-              <label>Ancestor Name</label>
-              <input placeholder="e.g. Abraham Makow" />
-            </div>
-            <div className="form-group">
-              <label>Birth Year (approx.)</label>
-              <input placeholder="e.g. 1880" />
-            </div>
-          </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label>Country of Origin</label>
-              <select>
-                <option>Poland</option><option>Russia</option>
-                <option>Germany</option><option>Ukraine</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label>Record Type</label>
-              <select>
-                <option>All Records</option><option>Census</option>
-                <option>Birth / Death</option><option>Immigration</option><option>Military</option>
-              </select>
-            </div>
-          </div>
-          <button className="btn btn-primary btn-sm">Search Records</button>
-        </div>
-      )}
 
       {/* Messages */}
       <div className="tabs" style={{ marginTop: '2rem' }}>
