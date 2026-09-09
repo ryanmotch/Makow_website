@@ -27,9 +27,7 @@ npm run dev           # Runs on http://localhost:3000
 
 ### 3. Open browser → http://localhost:3000
 
-## Default Admin Login
-- **Email**: admin@makow.com
-- **Password**: admin123
+
 
 ## Pages
 | Route | Access | Description |
