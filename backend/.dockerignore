@@ -1,0 +1,4 @@
+node_modules
+makow.db
+.env
+.env.local

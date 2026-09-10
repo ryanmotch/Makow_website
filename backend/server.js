@@ -6,10 +6,11 @@ const multer = require('multer');
 const { getDb, query, run } = require('./db');
 
 const app = express();
-const PORT = 3001;
-const JWT_SECRET = 'makow-genealogy-secret-2024';
+const PORT = process.env.PORT || 3001;
+const JWT_SECRET = process.env.JWT_SECRET || 'makow-genealogy-secret-2024';
 
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000').split(',').map(o => o.trim());
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
