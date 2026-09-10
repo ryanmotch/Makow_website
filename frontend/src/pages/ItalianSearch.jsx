@@ -18,19 +18,9 @@ export default function ItalianSearch() {
   const [recordType, setRecordType] = useState('');
   const [year, setYear] = useState('');
 
-  const buildSearchUrl = () => {
-    const terms = ['site:antenati.cultura.gov.it'];
-    if (comune) terms.push(`"${comune.trim()}"`);
-    if (provincia) terms.push(`"${provincia.trim()}"`);
-    if (recordType) terms.push(RECORD_TYPES.find(r => r.value === recordType)?.label.split(' ')[0] || '');
-    if (year) terms.push(year.trim());
-    const q = terms.filter(Boolean).join(' ');
-    return `https://www.google.com/search?q=${encodeURIComponent(q)}`;
-  };
-
   const handleSearch = (e) => {
     e.preventDefault();
-    window.open(buildSearchUrl(), '_blank', 'noopener,noreferrer');
+    window.open(ANTENATI_URL, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -38,10 +28,10 @@ export default function ItalianSearch() {
       <div className={styles.header}>
         <h2 className={styles.title}>Vital Records Search</h2>
         <p className={styles.subtitle}>
-          Fill in what you know, then click Search. Portale Antenati (Italy's
-          state civil records archive) doesn't support pre-filled search
-          links, so this opens a Google search scoped to the site with your
-          details — pick the matching comune page from the results.
+          Jot down what you know below, then click Search to open Portale
+          Antenati (Italy's state civil records archive) in a new tab —
+          it doesn't support pre-filled search links, so use its own
+          "Esplora gli Archivi" tool by comune or provincia once there.
         </p>
       </div>
 
@@ -111,19 +101,11 @@ export default function ItalianSearch() {
 
         <div className={styles.actions}>
           <button type="submit" className={styles.btnPrimary}>
-            Search Portale Antenati ↗
+            Open Portale Antenati ↗
           </button>
         </div>
 
       </form>
-
-      <p className={styles.hint} style={{ marginTop: '1.5rem' }}>
-        Prefer to browse directly?{' '}
-        <a href={ANTENATI_URL} target="_blank" rel="noreferrer">
-          Open Portale Antenati
-        </a>{' '}
-        and use its own "Esplora gli Archivi" tool by comune or provincia.
-      </p>
     </div>
   );
 }
