@@ -105,9 +105,9 @@ export default function Account() {
             <strong>⭐ Polish Vital Records Search</strong>
             <p>Search 55M+ scans of birth, marriage &amp; death records from Polish state archives.</p>
           </div>
-          <Link to="/polish-archives" className="btn btn-primary btn-sm" style={{ marginLeft: 'auto', whiteSpace: 'nowrap' }}>
+          <a href="https://www.szukajwarchiwach.gov.pl/wyszukiwanie-akt-metrykalnych" target="_blank" rel="noreferrer" className="btn btn-primary btn-sm" style={{ marginLeft: 'auto', whiteSpace: 'nowrap' }}>
             Search Archives →
-          </Link>
+          </a>
         </div>
       )}
 
