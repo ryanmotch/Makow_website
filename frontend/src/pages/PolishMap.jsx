@@ -127,8 +127,6 @@ export default function PolishMap() {
       })
 
       view.on('click', async (event) => {
-        labelsLayer.removeAll()
-
         const hit = await view.hitTest(event, { include: archivesLayer })
         if (hit.results.length > 0) return // let the archive pin's popup handle it
 
@@ -196,14 +194,13 @@ export default function PolishMap() {
           <h2 className={styles.title}>Poland Map</h2>
           <p className={styles.sub}>
             Zoom and pan to browse Poland's cities, towns, and villages. The
-            outlined regions and labels are the pre-1998 voivodeships (the
-            old 49-province system used on most vital records — boundaries
-            are an approximate overlay, not survey-accurate); click
-            anywhere to clear those labels and reveal today's voivodeship
-            names underneath. Blue markers sit on the old capitals and link
-            to the State Archive now holding that region's records — click
-            one for its contact email, or click elsewhere to identify the
-            nearest place and jump to the vital records search.
+            outlined regions are the pre-1998 voivodeships (the old
+            49-province system used on most vital records — boundaries are
+            an approximate overlay, not survey-accurate). Blue markers sit
+            on voivodeship capitals and link to the State Archive now
+            holding that region's records — click one for its contact
+            email. Click anywhere else to identify the nearest place and
+            jump to the vital records search for that location.
           </p>
         </div>
 
