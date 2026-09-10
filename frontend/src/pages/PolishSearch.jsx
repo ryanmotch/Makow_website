@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import styles from './PolishArchivesSearch.module.css';
 
 const VOIVODESHIPS_1998 = [
@@ -32,8 +33,12 @@ const CONFESSIONS = [
 const BASE_URL = 'https://www.szukajwarchiwach.gov.pl/wyszukiwanie-akt-metrykalnych';
 
 export default function PolishArchivesSearch() {
+  const [searchParams] = useSearchParams();
   const [location, setLocation]     = useState('');
-  const [voivodeship, setVoivodeship] = useState('');
+  const [voivodeship, setVoivodeship] = useState(() => {
+    const v = searchParams.get('voivodeship') || '';
+    return VOIVODESHIPS_1998.includes(v) ? v : '';
+  });
   const [confession, setConfession] = useState('');
   const [churchName, setChurchName] = useState('');
 
