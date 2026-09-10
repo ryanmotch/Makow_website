@@ -42,7 +42,7 @@ export const ARCHIVES = [
   { voivodeship: "Słupsk", office: "Archiwum Państwowe w Koszalinie, Oddział w Słupsku", email: "slupsk@koszalin.ap.gov.pl", lat: 54.4649331, lon: 17.0280730 },
   { voivodeship: "Tarnów", office: "Archiwum Narodowe w Krakowie, Oddział w Tarnowie", email: "tarnow@ank.gov.pl", lat: 50.0259883, lon: 20.9640584 },
   { voivodeship: "Toruń", office: "Archiwum Państwowe w Toruniu", email: "archiwum@torun.ap.gov.pl", lat: 53.0102721, lon: 18.6048094 },
-  { voivodeship: "Warszawa", office: "Archiwum Państwowe w Warszawie", email: "archiwum@warszawa.ap.gov.pl", lat: 52.2333742, lon: 21.0711489, note: "Also holds records for the former Ostrołęka and Ciechanów voivodeships." },
+  { voivodeship: "Warszawa", office: "Archiwum Państwowe w Warszawie", email: "archiwum@warszawa.ap.gov.pl", lat: 52.2333742, lon: 21.0711489, note: "Also holds records for the former Ostrołęka, Ciechanów, and Skierniewice voivodeships." },
   { voivodeship: "Wrocław", office: "Archiwum Państwowe we Wrocławiu", email: "sekretariat@wroclaw.archiwa.gov.pl", lat: 51.1263106, lon: 16.9781963, note: "Also holds records for the former Wałbrzych voivodeship." },
   { voivodeship: "Włocławek", office: "Archiwum Państwowe w Toruniu, Oddział we Włocławku", email: "wloclawek@torun.ap.gov.pl", lat: 52.6655636, lon: 19.0961297 },
   { voivodeship: "Zamość", office: "Archiwum Państwowe w Zamościu", email: "kancelaria@zamosc.archiwa.gov.pl", lat: 50.7212452, lon: 23.2595799 },
