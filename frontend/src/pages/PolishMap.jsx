@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ARCHIVES } from '../data/polishArchives'
+import { VOIVODESHIP_BOUNDARIES } from '../data/voivodeshipBoundaries'
 import styles from './PolishMap.module.css'
 
 const ARCGIS_VERSION = '4.31'
@@ -40,6 +41,35 @@ export default function PolishMap() {
       ])
       if (cancelled) return
 
+      const boundariesLayer = new GraphicsLayer()
+      const boundaryGraphics = []
+      for (const region of VOIVODESHIP_BOUNDARIES) {
+        boundaryGraphics.push(
+          new Graphic({
+            geometry: { type: 'polygon', rings: region.rings },
+            symbol: {
+              type: 'simple-fill',
+              color: [30, 80, 180, 0.06],
+              outline: { color: [30, 80, 180, 0.7], width: 1 },
+            },
+          })
+        )
+        boundaryGraphics.push(
+          new Graphic({
+            geometry: { type: 'point', longitude: region.label[0], latitude: region.label[1] },
+            symbol: {
+              type: 'text',
+              text: region.voivodeship,
+              color: [60, 60, 60],
+              haloColor: [255, 255, 255],
+              haloSize: 1.2,
+              font: { size: 9 },
+            },
+          })
+        )
+      }
+      boundariesLayer.addMany(boundaryGraphics)
+
       const archivesLayer = new GraphicsLayer()
       const archivePopupTemplate = new PopupTemplate({
         title: '{office}',
@@ -69,7 +99,7 @@ export default function PolishMap() {
       )
 
       const markerLayer = new GraphicsLayer()
-      const map = new EsriMap({ basemap: 'osm', layers: [archivesLayer, markerLayer] })
+      const map = new EsriMap({ basemap: 'osm', layers: [boundariesLayer, archivesLayer, markerLayer] })
       const view = new MapView({
         container: mapDivRef.current,
         map,
@@ -160,12 +190,14 @@ export default function PolishMap() {
         <div className={styles.header}>
           <h2 className={styles.title}>Poland Map</h2>
           <p className={styles.sub}>
-            Zoom and pan to browse Poland's cities, towns, and villages. Blue
-            markers sit on capitals of the pre-1998 voivodeships (the old
-            49-province system used on most vital records) and link to the
-            State Archive now holding that region's records — click one for
-            its contact email. Click anywhere else to identify the nearest
-            place and jump to the vital records search for that location.
+            Zoom and pan to browse Poland's cities, towns, and villages. The
+            outlined regions are the pre-1998 voivodeships (the old
+            49-province system used on most vital records — boundaries are
+            an approximate overlay, not survey-accurate). Blue markers sit
+            on voivodeship capitals and link to the State Archive now
+            holding that region's records — click one for its contact
+            email. Click anywhere else to identify the nearest place and
+            jump to the vital records search for that location.
           </p>
         </div>
 
