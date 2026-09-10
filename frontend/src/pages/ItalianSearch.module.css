@@ -1,0 +1,117 @@
+/* ItalianSearch.module.css */
+
+.wrapper {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+  font-family: inherit;
+  color: var(--color-text, #1a1a1a);
+}
+
+/* ── Header ─────────────────────────────────────────── */
+
+.header {
+  margin-bottom: 2rem;
+  border-bottom: 2px solid var(--color-border, #e0d8ce);
+  padding-bottom: 1.25rem;
+}
+
+.title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem;
+  color: var(--color-heading, #1a1a1a);
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: var(--color-muted, #666);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── Form ────────────────────────────────────────────── */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-label, #333);
+}
+
+.italian {
+  font-weight: 400;
+  font-style: italic;
+  color: var(--color-muted, #888);
+  font-size: 0.82em;
+  margin-left: 0.3em;
+}
+
+.input,
+.select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1.5px solid var(--color-border, #ccc);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background: var(--color-input-bg, #fff);
+  color: var(--color-text, #1a1a1a);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+}
+
+.input:focus,
+.select:focus {
+  outline: none;
+  border-color: var(--color-accent, #7a4f2e);
+  box-shadow: 0 0 0 3px var(--color-accent-faint, rgba(122, 79, 46, 0.12));
+}
+
+.hint {
+  font-size: 0.78rem;
+  color: var(--color-muted, #888);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.hint strong {
+  color: var(--color-muted-strong, #555);
+}
+
+/* ── Actions ─────────────────────────────────────────── */
+
+.actions {
+  padding-top: 0.5rem;
+}
+
+.btnPrimary {
+  padding: 0.7rem 1.8rem;
+  background: var(--color-accent, #7a4f2e);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.btnPrimary:hover {
+  background: var(--color-accent-dark, #5e3a20);
+}
+
+.btnPrimary:active {
+  transform: scale(0.98);
+}

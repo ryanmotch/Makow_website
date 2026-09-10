@@ -11,6 +11,7 @@ import Account from './pages/Account'
 import Admin from './pages/Admin'
 import PolishSearch from './pages/PolishSearch'
 import PolishMap from './pages/PolishMap'
+import ItalianSearch from './pages/ItalianSearch'
 
 function ProtectedRoute({ children, adminOnly = false }) {
   const { user } = useAuth()
@@ -32,6 +33,7 @@ function AppRoutes() {
         <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
         <Route path="/polish-archives" element={<ProtectedRoute><PolishSearch /></ProtectedRoute>} />
         <Route path="/polish-map" element={<ProtectedRoute><PolishMap /></ProtectedRoute>} />
+        <Route path="/italian-archives" element={<ProtectedRoute><ItalianSearch /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute adminOnly><Admin /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

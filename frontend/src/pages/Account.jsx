@@ -124,6 +124,19 @@ export default function Account() {
         </div>
       )}
 
+      {/* Italian Archives quick-link for paid users */}
+      {user?.is_paid && (
+        <div className={styles.archivePromo}>
+          <div>
+            <strong>🏛️ Italian Vital Records Search</strong>
+            <p>Search Portale Antenati, Italy's state archive of civil birth, marriage &amp; death records.</p>
+          </div>
+          <Link to="/italian-archives" className="btn btn-primary btn-sm" style={{ marginLeft: 'auto', whiteSpace: 'nowrap' }}>
+            Search Archives →
+          </Link>
+        </div>
+      )}
+
       {/* Messages */}
       <div className="tabs" style={{ marginTop: '2rem' }}>
         <button className={`tab ${tab === 'inbox' ? 'active' : ''}`} onClick={() => { setTab('inbox'); setOpenMsg(null) }}>
