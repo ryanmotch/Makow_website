@@ -28,7 +28,7 @@
 }
 .credIcon { font-size: 1.1rem; flex-shrink: 0; }
 
-.statsRow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+.statsRow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
 .statCard {
   border: 1px solid #E4E2DE; border-radius: 6px; padding: 1.5rem;
   text-align: center; display: flex; flex-direction: column; gap: 4px;
@@ -40,5 +40,5 @@
   .layout { grid-template-columns: 1fr; }
   .portrait { position: static; display: flex; align-items: center; gap: 1.5rem; }
   .portraitImg { width: 120px; aspect-ratio: 1; flex-shrink: 0; }
-  .statsRow { grid-template-columns: repeat(2, 1fr); }
+  .statsRow { grid-template-columns: 1fr; }
 }
