@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ARCHIVES } from '../data/polishArchives'
 import styles from './PolishMap.module.css'
 
 const ARCGIS_VERSION = '4.31'
@@ -24,16 +25,40 @@ export default function PolishMap() {
     let cancelled = false
 
     async function init() {
-      const [EsriMap, MapView, GraphicsLayer, Graphic] = await Promise.all([
+      const [EsriMap, MapView, GraphicsLayer, Graphic, PopupTemplate] = await Promise.all([
         loadArcgisModule('Map'),
         loadArcgisModule('views/MapView'),
         loadArcgisModule('layers/GraphicsLayer'),
         loadArcgisModule('Graphic'),
+        loadArcgisModule('PopupTemplate'),
       ])
       if (cancelled) return
 
+      const archivesLayer = new GraphicsLayer()
+      const archivePopupTemplate = new PopupTemplate({
+        title: 'Archiwum Państwowe w {city}',
+        content: 'Contact: <a href="mailto:{email}">{email}</a>',
+      })
+      archivesLayer.addMany(
+        ARCHIVES.map(
+          ({ city, email, lat, lon }) =>
+            new Graphic({
+              geometry: { type: 'point', longitude: lon, latitude: lat },
+              attributes: { city, email },
+              popupTemplate: archivePopupTemplate,
+              symbol: {
+                type: 'simple-marker',
+                style: 'triangle',
+                color: [30, 80, 180],
+                size: 12,
+                outline: { color: [255, 255, 255], width: 1.5 },
+              },
+            })
+        )
+      )
+
       const markerLayer = new GraphicsLayer()
-      const map = new EsriMap({ basemap: 'osm', layers: [markerLayer] })
+      const map = new EsriMap({ basemap: 'osm', layers: [archivesLayer, markerLayer] })
       const view = new MapView({
         container: mapDivRef.current,
         map,
@@ -47,6 +72,9 @@ export default function PolishMap() {
       })
 
       view.on('click', async (event) => {
+        const hit = await view.hitTest(event, { include: archivesLayer })
+        if (hit.results.length > 0) return // let the archive pin's popup handle it
+
         const { latitude, longitude } = event.mapPoint
         markerLayer.removeAll()
         markerLayer.add(
@@ -110,9 +138,11 @@ export default function PolishMap() {
         <div className={styles.header}>
           <h2 className={styles.title}>Poland Map</h2>
           <p className={styles.sub}>
-            Zoom and pan to browse Poland's cities, towns, and villages. Click any
-            point on the map to identify the nearest place and jump to the vital
-            records search for that location.
+            Zoom and pan to browse Poland's cities, towns, and villages. Blue
+            markers are regional State Archives (Archiwum Państwowe) — click
+            one for its contact email. Click anywhere else to identify the
+            nearest place and jump to the vital records search for that
+            location.
           </p>
         </div>
 
@@ -145,7 +175,8 @@ export default function PolishMap() {
               )
             ) : (
               <p className={styles.sidebarEmpty}>
-                Click a city or village on the map to see its name, then jump to
+                Click a blue marker for a State Archive's contact email, or
+                click anywhere else to identify a city or village and jump to
                 the archives search.
               </p>
             )}
@@ -154,7 +185,11 @@ export default function PolishMap() {
               <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
                 OpenStreetMap
               </a>{' '}
-              Nominatim.
+              Nominatim. Archive contacts:{' '}
+              <a href="https://www.szukajwarchiwach.gov.pl/en/wszystkie-archiwa" target="_blank" rel="noreferrer">
+                szukajwarchiwach.gov.pl
+              </a>
+              . Always confirm an address before relying on it.
             </p>
           </aside>
         </div>
