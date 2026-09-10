@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { ARCHIVES } from '../data/polishArchives'
 import styles from './PolishMap.module.css'
 
@@ -12,6 +12,10 @@ async function loadArcgisModule(path) {
   return mod.default
 }
 
+async function loadArcgisNamed(path) {
+  return import(/* @vite-ignore */ `https://js.arcgis.com/${ARCGIS_VERSION}/@arcgis/core/${path}.js`)
+}
+
 export default function PolishMap() {
   const mapDivRef = useRef(null)
   const viewRef = useRef(null)
@@ -20,31 +24,38 @@ export default function PolishMap() {
   const [place, setPlace] = useState(null)
   const [lookupLoading, setLookupLoading] = useState(false)
   const [lookupBusy, setLookupBusy] = useState(false)
+  const navigate = useNavigate()
 
   useEffect(() => {
     let cancelled = false
 
     async function init() {
-      const [EsriMap, MapView, GraphicsLayer, Graphic, PopupTemplate] = await Promise.all([
+      const [EsriMap, MapView, GraphicsLayer, Graphic, PopupTemplate, reactiveUtils] = await Promise.all([
         loadArcgisModule('Map'),
         loadArcgisModule('views/MapView'),
         loadArcgisModule('layers/GraphicsLayer'),
         loadArcgisModule('Graphic'),
         loadArcgisModule('PopupTemplate'),
+        loadArcgisNamed('core/reactiveUtils'),
       ])
       if (cancelled) return
 
       const archivesLayer = new GraphicsLayer()
       const archivePopupTemplate = new PopupTemplate({
-        title: 'Archiwum Państwowe w {city}',
-        content: 'Contact: <a href="mailto:{email}">{email}</a>',
+        title: '{office}',
+        content:
+          '<p>Holds records for the former {voivodeship} voivodeship (pre-1998).</p>' +
+          '<p>Contact: <a href="mailto:{email}">{email}</a></p>',
+        actions: [
+          { type: 'button', id: 'search-archives', title: 'Search Archives', icon: 'search' },
+        ],
       })
       archivesLayer.addMany(
         ARCHIVES.map(
-          ({ city, email, lat, lon }) =>
+          ({ voivodeship, office, email, lat, lon }) =>
             new Graphic({
               geometry: { type: 'point', longitude: lon, latitude: lat },
-              attributes: { city, email },
+              attributes: { voivodeship, office, email },
               popupTemplate: archivePopupTemplate,
               symbol: {
                 type: 'simple-marker',
@@ -69,6 +80,17 @@ export default function PolishMap() {
       view.when(() => {
         if (cancelled) return
         setMapReady(true)
+        reactiveUtils.on(
+          () => view.popup,
+          'trigger-action',
+          (event) => {
+            if (event.action.id !== 'search-archives') return
+            const voivodeship = view.popup.selectedFeature?.attributes?.voivodeship
+            if (voivodeship) {
+              navigate(`/polish-archives?voivodeship=${encodeURIComponent(voivodeship)}`)
+            }
+          }
+        )
       })
 
       view.on('click', async (event) => {
@@ -139,10 +161,11 @@ export default function PolishMap() {
           <h2 className={styles.title}>Poland Map</h2>
           <p className={styles.sub}>
             Zoom and pan to browse Poland's cities, towns, and villages. Blue
-            markers are regional State Archives (Archiwum Państwowe) — click
-            one for its contact email. Click anywhere else to identify the
-            nearest place and jump to the vital records search for that
-            location.
+            markers sit on capitals of the pre-1998 voivodeships (the old
+            49-province system used on most vital records) and link to the
+            State Archive now holding that region's records — click one for
+            its contact email. Click anywhere else to identify the nearest
+            place and jump to the vital records search for that location.
           </p>
         </div>
 
@@ -175,9 +198,9 @@ export default function PolishMap() {
               )
             ) : (
               <p className={styles.sidebarEmpty}>
-                Click a blue marker for a State Archive's contact email, or
-                click anywhere else to identify a city or village and jump to
-                the archives search.
+                Click a blue marker for a pre-1998 voivodeship's State
+                Archive contact, or click anywhere else to identify a city or
+                village and jump to the archives search.
               </p>
             )}
             <p className={styles.attribution}>
@@ -189,7 +212,8 @@ export default function PolishMap() {
               <a href="https://www.szukajwarchiwach.gov.pl/en/wszystkie-archiwa" target="_blank" rel="noreferrer">
                 szukajwarchiwach.gov.pl
               </a>
-              . Always confirm an address before relying on it.
+              . Only voivodeships with a confirmed matching archive are
+              pinned — always confirm an address before relying on it.
             </p>
           </aside>
         </div>
