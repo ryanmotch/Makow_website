@@ -34,7 +34,7 @@ export const ARCHIVES = [
   { voivodeship: "Przemyśl", office: "Archiwum Państwowe w Przemyślu", email: "archiwum@przemysl.ap.gov.pl", lat: 49.7822726, lon: 22.7749654 },
   { voivodeship: "Płock", office: "Archiwum Państwowe w Płocku", email: "sekretariat@plock.ap.gov.pl", lat: 52.5353471, lon: 19.7136301 },
   { voivodeship: "Radom", office: "Archiwum Państwowe w Radomiu", email: "kancelaria@radom.ap.gov.pl", lat: 51.4167270, lon: 21.1607392 },
-  { voivodeship: "Rzeszów", office: "Archiwum Państwowe w Rzeszowie", email: "sekretariat@rzeszow.archiwa.gov.pl", lat: 50.0133190, lon: 22.0161677 },
+  { voivodeship: "Rzeszów", office: "Archiwum Państwowe w Rzeszowie", email: "sekretariat@rzeszow.archiwa.gov.pl", lat: 50.0133190, lon: 22.0161677, note: "Also holds records for the former Krosno voivodeship." },
   { voivodeship: "Siedlce", office: "Archiwum Państwowe w Siedlcach", email: "archiw@siedlce.ap.gov.pl", lat: 52.1615938, lon: 22.2812533 },
   { voivodeship: "Sieradz", office: "Archiwum Państwowe w Łodzi, Oddział w Sieradzu", email: "oddzial.sieradz@lodz.ap.gov.pl", lat: 51.6017529, lon: 18.7399015 },
   { voivodeship: "Suwałki", office: "Archiwum Państwowe w Suwałkach", email: "archiwum@suwalki.ap.gov.pl", lat: 54.0990636, lon: 22.9279363 },
