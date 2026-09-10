@@ -111,12 +111,12 @@ export default function Account() {
         </div>
       )}
 
-      {/* Voivodeship map quick-link for paid users */}
+      {/* Poland map quick-link for paid users */}
       {user?.is_paid && (
         <div className={styles.archivePromo}>
           <div>
-            <strong>🗺️ Voivodeship Map</strong>
-            <p>Browse Poland's 49 pre-1999 provinces and jump straight to the archives search for any region.</p>
+            <strong>🗺️ Poland Map</strong>
+            <p>Browse cities, towns, and villages across Poland and jump straight to the archives search for any location.</p>
           </div>
           <Link to="/polish-map" className="btn btn-primary btn-sm" style={{ marginLeft: 'auto', whiteSpace: 'nowrap' }}>
             Explore Map →

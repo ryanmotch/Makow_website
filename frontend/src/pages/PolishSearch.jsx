@@ -34,7 +34,7 @@ const BASE_URL = 'https://www.szukajwarchiwach.gov.pl/wyszukiwanie-akt-metrykaln
 
 export default function PolishArchivesSearch() {
   const [searchParams] = useSearchParams();
-  const [location, setLocation]     = useState('');
+  const [location, setLocation]     = useState(() => searchParams.get('location') || '');
   const [voivodeship, setVoivodeship] = useState(() => {
     const v = searchParams.get('voivodeship') || '';
     return VOIVODESHIPS_1998.includes(v) ? v : '';

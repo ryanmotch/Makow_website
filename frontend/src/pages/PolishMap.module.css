@@ -13,39 +13,38 @@
   color: #6B6B6B;
   font-size: 0.92rem;
   margin-top: 0.4rem;
-  max-width: 620px;
+  max-width: 640px;
 }
 
 .mapArea {
   display: grid;
-  grid-template-columns: 1fr 260px;
+  grid-template-columns: 1fr 280px;
   gap: 1.5rem;
   align-items: start;
 }
 
 .mapFrame {
+  position: relative;
   border: 1px solid #E4E2DE;
   border-radius: 8px;
+  overflow: hidden;
   background: #F5F4F2;
-  padding: 1rem;
+  height: 620px;
 }
-
-.svg {
+.mapDiv {
   width: 100%;
-  height: auto;
-  display: block;
+  height: 100%;
 }
 
-.region {
-  fill: #E8C5C5;
-  stroke: #ffffff;
-  stroke-width: 3;
-  cursor: pointer;
-  transition: fill 0.12s ease;
-}
-.region:hover,
-.region.active {
-  fill: #C8171A;
+.mapLoading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6B6B6B;
+  font-size: 0.9rem;
+  background: #F5F4F2;
 }
 
 .sidebar {
@@ -59,12 +58,18 @@
 .sidebarEmpty {
   color: #6B6B6B;
   font-size: 0.88rem;
+  line-height: 1.5;
 }
 .sidebarName {
   font-family: 'Playfair Display', serif;
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   color: #C8171A;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.3rem;
+}
+.sidebarMeta {
+  color: #6B6B6B;
+  font-size: 0.82rem;
+  margin-bottom: 1rem;
 }
 .sidebarHint {
   color: #6B6B6B;
@@ -73,9 +78,21 @@
   line-height: 1.5;
 }
 
+.attribution {
+  color: #9A9A9A;
+  font-size: 0.72rem;
+  margin-top: 0.8rem;
+}
+.attribution a {
+  text-decoration: underline;
+}
+
 @media (max-width: 768px) {
   .mapArea {
     grid-template-columns: 1fr;
+  }
+  .mapFrame {
+    height: 440px;
   }
   .sidebar {
     position: static;
