@@ -61,7 +61,7 @@
 
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   padding: 1.5rem 0;
 }
 
@@ -163,7 +163,7 @@
 .ctaSub { color: rgba(255,255,255,0.5); font-size: 0.95rem; }
 
 @media (max-width: 640px) {
-  .statsGrid { grid-template-columns: repeat(2, 1fr); }
+  .statsGrid { grid-template-columns: 1fr; }
   .stat { border-bottom: 1px solid #2A2A2A; }
   .cta { flex-direction: column; align-items: flex-start; }
 }
