@@ -7,6 +7,7 @@ import styles from './PolishMap.module.css'
 const ARCGIS_VERSION = '4.31'
 const POLAND_CENTER = [19.4, 52.05]
 const POLAND_ZOOM = 6
+const BASEMAP_STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty'
 
 async function loadArcgisModule(path) {
   const mod = await import(/* @vite-ignore */ `https://js.arcgis.com/${ARCGIS_VERSION}/@arcgis/core/${path}.js`)
@@ -21,6 +22,7 @@ export default function PolishMap() {
   const mapDivRef = useRef(null)
   const viewRef = useRef(null)
   const markerLayerRef = useRef(null)
+  const modernLabelsHiddenRef = useRef(false)
   const [mapReady, setMapReady] = useState(false)
   const [place, setPlace] = useState(null)
   const [lookupLoading, setLookupLoading] = useState(false)
@@ -31,13 +33,14 @@ export default function PolishMap() {
     let cancelled = false
 
     async function init() {
-      const [EsriMap, MapView, GraphicsLayer, Graphic, PopupTemplate, reactiveUtils] = await Promise.all([
+      const [EsriMap, MapView, GraphicsLayer, Graphic, PopupTemplate, reactiveUtils, VectorTileLayer] = await Promise.all([
         loadArcgisModule('Map'),
         loadArcgisModule('views/MapView'),
         loadArcgisModule('layers/GraphicsLayer'),
         loadArcgisModule('Graphic'),
         loadArcgisModule('PopupTemplate'),
         loadArcgisNamed('core/reactiveUtils'),
+        loadArcgisModule('layers/VectorTileLayer'),
       ])
       if (cancelled) return
 
@@ -102,12 +105,20 @@ export default function PolishMap() {
       )
 
       const markerLayer = new GraphicsLayer()
-      const map = new EsriMap({ basemap: 'osm', layers: [boundariesLayer, labelsLayer, archivesLayer, markerLayer] })
+      const basemapLayer = new VectorTileLayer({ style: BASEMAP_STYLE_URL })
+      const map = new EsriMap({
+        basemap: { baseLayers: [basemapLayer] },
+        layers: [boundariesLayer, labelsLayer, archivesLayer, markerLayer],
+      })
       const view = new MapView({
         container: mapDivRef.current,
         map,
         center: POLAND_CENTER,
         zoom: POLAND_ZOOM,
+        // The default auto popup hit-test scans every layer (incl. the vector
+        // basemap) on click, which throws after the basemap's style is mutated
+        // at runtime below - open popups manually instead, only for pin hits.
+        popup: { autoOpenEnabled: false },
       })
 
       view.when(() => {
@@ -127,8 +138,24 @@ export default function PolishMap() {
       })
 
       view.on('click', async (event) => {
+        // Hide only the modern voivodeship (state-level) labels from the vector
+        // basemap's style, leaving roads, water, city/town labels, etc. untouched.
+        // Only do this once - repeated setStyleLayer calls churn the layer's
+        // internal tile index and throw on the next hitTest.
+        if (!modernLabelsHiddenRef.current) {
+          modernLabelsHiddenRef.current = true
+          const stateLabelLayer = basemapLayer.getStyleLayer('label_state')
+          if (stateLabelLayer) {
+            stateLabelLayer.layout = { ...stateLabelLayer.layout, visibility: 'none' }
+            basemapLayer.setStyleLayer(stateLabelLayer)
+          }
+        }
+
         const hit = await view.hitTest(event, { include: archivesLayer })
-        if (hit.results.length > 0) return // let the archive pin's popup handle it
+        if (hit.results.length > 0) {
+          view.openPopup({ features: [hit.results[0].graphic], location: event.mapPoint })
+          return
+        }
 
         const { latitude, longitude } = event.mapPoint
         markerLayer.removeAll()
@@ -196,11 +223,12 @@ export default function PolishMap() {
             Zoom and pan to browse Poland's cities, towns, and villages. The
             outlined regions are the pre-1998 voivodeships (the old
             49-province system used on most vital records — boundaries are
-            an approximate overlay, not survey-accurate). Blue markers sit
-            on voivodeship capitals and link to the State Archive now
-            holding that region's records — click one for its contact
-            email. Click anywhere else to identify the nearest place and
-            jump to the vital records search for that location.
+            an approximate overlay, not survey-accurate); the first click
+            also hides today's voivodeship names so they don't compete with
+            these labels. Blue markers sit on the old capitals and link to
+            the State Archive now holding that region's records — click one
+            for its contact email, or click elsewhere to identify the
+            nearest place and jump to the vital records search.
           </p>
         </div>
 
@@ -239,7 +267,11 @@ export default function PolishMap() {
               </p>
             )}
             <p className={styles.attribution}>
-              Map: OpenStreetMap contributors via ArcGIS. Place lookup:{' '}
+              Map style:{' '}
+              <a href="https://openfreemap.org" target="_blank" rel="noreferrer">
+                OpenFreeMap
+              </a>
+              . Map data: OpenStreetMap contributors. Place lookup:{' '}
               <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
                 OpenStreetMap
               </a>{' '}
