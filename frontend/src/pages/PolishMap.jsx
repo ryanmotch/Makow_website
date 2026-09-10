@@ -79,19 +79,23 @@ export default function PolishMap() {
       const archivesLayer = new GraphicsLayer()
       const archivePopupTemplate = new PopupTemplate({
         title: '{office}',
-        content:
-          '<p>Holds records for the former {voivodeship} voivodeship (pre-1998).</p>' +
-          '<p>Contact: <a href="mailto:{email}">{email}</a></p>',
+        content: (event) => {
+          const a = event.graphic.attributes
+          let html = `<p>Holds records for the former ${a.voivodeship} voivodeship (pre-1998).</p>`
+          if (a.note) html += `<p>${a.note}</p>`
+          html += `<p>Contact: <a href="mailto:${a.email}">${a.email}</a></p>`
+          return html
+        },
         actions: [
           { type: 'button', id: 'search-archives', title: 'Search Archives', icon: 'search' },
         ],
       })
       archivesLayer.addMany(
         ARCHIVES.map(
-          ({ voivodeship, office, email, lat, lon }) =>
+          ({ voivodeship, office, email, note, lat, lon }) =>
             new Graphic({
               geometry: { type: 'point', longitude: lon, latitude: lat },
-              attributes: { voivodeship, office, email },
+              attributes: { voivodeship, office, email, note: note || '' },
               popupTemplate: archivePopupTemplate,
               symbol: {
                 type: 'simple-marker',

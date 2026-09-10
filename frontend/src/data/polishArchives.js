@@ -1,8 +1,10 @@
 // Polish State Archives whose office is named for one of the 49 pre-1999
 // (1975-1998) voivodeship capitals - either as the primary regional archive
 // or a branch (Oddział) office serving that city directly. Historical
-// voivodeships without a confirmed direct match (e.g. Ciechanów, Elbląg,
-// Ostrołęka) are intentionally omitted rather than guessed.
+// voivodeships without a confirmed direct match (e.g. Ciechanów,
+// Ostrołęka) are intentionally omitted rather than guessed. Where an
+// omitted voivodeship's records are known to be held by a pinned
+// archive, that's called out via the `note` field (e.g. Elbląg -> Gdańsk).
 // Source: szukajwarchiwach.gov.pl official directory, coordinates geocoded
 // via OpenStreetMap Nominatim.
 export const ARCHIVES = [
@@ -11,7 +13,7 @@ export const ARCHIVES = [
   { voivodeship: "Bydgoszcz", office: "Archiwum Państwowe w Bydgoszczy", email: "kancelaria@bydgoszcz.ap.gov.pl", lat: 53.1297127, lon: 18.0294488 },
   { voivodeship: "Chełm", office: "Archiwum Państwowe w Lublinie, Oddział w Chełmie", email: "chelm@lublin.ap.gov.pl", lat: 51.1339221, lon: 23.4711548 },
   { voivodeship: "Częstochowa", office: "Archiwum Państwowe w Częstochowie", email: "kancelaria@czestochowa.ap.gov.pl", lat: 50.8089997, lon: 19.1244089 },
-  { voivodeship: "Gdańsk", office: "Archiwum Państwowe w Gdańsku", email: "apgda@gdansk.ap.gov.pl", lat: 54.4288032, lon: 18.7983270 },
+  { voivodeship: "Gdańsk", office: "Archiwum Państwowe w Gdańsku", email: "apgda@gdansk.ap.gov.pl", lat: 54.4288032, lon: 18.7983270, note: "Also holds records for the former Elbląg voivodeship." },
   { voivodeship: "Gorzów Wielkopolski", office: "Archiwum Państwowe w Gorzowie Wielkopolskim", email: "sekretariat@gorzow.ap.gov.pl", lat: 52.7305756, lon: 15.2107553 },
   { voivodeship: "Jelenia Góra", office: "Archiwum Państwowe we Wrocławiu, Oddział w Jeleniej Górze", email: "legnica@wroclaw.archiwa.gov.pl", lat: 50.8501049, lon: 15.6537492 },
   { voivodeship: "Kalisz", office: "Archiwum Państwowe w Kaliszu", email: "sekretariat@archiwum.kalisz.pl", lat: 51.7472867, lon: 18.0795320 },
