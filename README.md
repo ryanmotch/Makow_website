@@ -76,3 +76,4 @@ messages            (id, sender_id, recipient_id, subject, body,
 | PUT | /api/admin/users/:id/paid | Admin | Toggle paid access |
 | GET | /api/admin/messages | Admin | All messages |
 | GET | /api/users | User | User list (for messaging) |
+
