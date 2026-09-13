@@ -1,12 +1,13 @@
 # Makow Genealogy Website
 
-Full-stack genealogy website — React frontend + Node/Express + SQLite backend.
+Full-stack genealogy website — React frontend + Node/Express backend, deployed on Vercel.
 
 ## Stack
-- **Backend**: Node.js · Express · sql.js (SQLite, file-persisted to `makow.db`)
+- **Backend**: Node.js · Express (deployed as a Vercel serverless function) · PostgreSQL (Neon, via Vercel's marketplace integration)
 - **Frontend**: React 19 · Vite · React Router v7 · CSS Modules
 - **Auth**: JWT tokens · bcrypt passwords
 - **Polish Archives**: Premium-gated proxy to szukajwarchiwach.gov.pl
+- **Deployment**: Vercel (frontend + backend as separate projects: `makow-genealogy`, `makow-genealogy-api`), auto-deployed on push to `master`
 
 ## Quick Start
 
@@ -14,8 +15,10 @@ Full-stack genealogy website — React frontend + Node/Express + SQLite backend.
 ```bash
 cd backend
 npm install
-node server.js        # Runs on http://localhost:3001
-                      # DB + admin user auto-created on first run
+# Requires a DATABASE_URL env var pointing at a Postgres instance -
+# `vercel env pull` if the project is linked, or run against a local Postgres.
+node --env-file=.env.local server.js   # Runs on http://localhost:3001
+                                        # Schema + admin user auto-created on first run
 ```
 
 ### 2. Frontend
@@ -49,7 +52,7 @@ Premium users access `/polish-archives` which:
 4. Falls back to a direct link if the site blocks embedding (common with X-Frame-Options)
 5. Always shows an "Open in New Tab" button for full access
 
-## Database Schema
+## Database Schema (Postgres)
 ```sql
 users               (id, name, email, password, is_paid, is_admin, created_at)
 contact_submissions (id, name, email, phone, service, ancestry, time_period,
@@ -57,6 +60,9 @@ contact_submissions (id, name, email, phone, service, ancestry, time_period,
 messages            (id, sender_id, recipient_id, subject, body,
                      attachment_name, attachment_data, link, is_read, created_at)
 ```
+`db.js` translates the app's SQLite-style `?` positional placeholders to
+Postgres `$1, $2, ...` and appends `RETURNING id` to inserts, so route
+handlers use the same query style either way.
 
 ## API Endpoints
 | Method | Path | Auth | Description |
@@ -76,11 +82,3 @@ messages            (id, sender_id, recipient_id, subject, body,
 | PUT | /api/admin/users/:id/paid | Admin | Toggle paid access |
 | GET | /api/admin/messages | Admin | All messages |
 | GET | /api/users | User | User list (for messaging) |
-
-
-
-
-
-
-
-
