@@ -11,7 +11,7 @@ export default function About() {
     <div>
       <div className={styles.heroBanner}>
         <div className="container">
-          <p className={styles.eyebrow}>Est. 2026</p>
+          <p className={styles.eyebrow}>Est. 2006</p>
           <h1 className={styles.heroTitle}>About Makow Genealogy</h1>
           <p className={styles.heroSub}>Two decades of uncovering family histories with rigour and care</p>
         </div>
