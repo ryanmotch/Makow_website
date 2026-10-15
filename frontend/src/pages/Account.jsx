@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import SendMessageModal from '../components/SendMessageModal'
 import styles from './Account.module.css'
@@ -40,7 +40,10 @@ function MessageDetail({ msg, isInbox, onBack }) {
 }
 
 export default function Account() {
-  const { user, apiFetch } = useAuth()
+  const { user, apiFetch, login } = useAuth()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [billingBusy, setBillingBusy] = useState(false)
+  const [billingMsg, setBillingMsg] = useState(null) // { type: 'success' | 'error', text }
   const [tab, setTab] = useState('inbox')
   const [inbox, setInbox] = useState([])
   const [sent, setSent] = useState([])
@@ -57,6 +60,37 @@ export default function Account() {
   }
 
   useEffect(() => { loadMessages() }, [])
+
+  // Handle the redirect back from Stripe Checkout.
+  useEffect(() => {
+    const result = searchParams.get('checkout')
+    if (!result) return
+    const sessionId = searchParams.get('session_id')
+    setSearchParams({}, { replace: true })
+    if (result === 'cancelled') {
+      setBillingMsg({ type: 'error', text: 'Checkout was cancelled. You have not been charged.' })
+    } else if (result === 'success' && sessionId) {
+      apiFetch('POST', '/billing/confirm', { session_id: sessionId })
+        .then(res => {
+          login(res.token, res.user)
+          setBillingMsg(res.user.is_paid
+            ? { type: 'success', text: 'Welcome aboard! Your membership is active.' }
+            : { type: 'error', text: 'Your payment is still processing. Refresh this page in a minute.' })
+        })
+        .catch(ex => setBillingMsg({ type: 'error', text: ex.message }))
+    }
+  }, [])
+
+  const goToBilling = async path => {
+    setBillingBusy(true); setBillingMsg(null)
+    try {
+      const { url } = await apiFetch('POST', path)
+      window.location.href = url
+    } catch (ex) {
+      setBillingMsg({ type: 'error', text: ex.message })
+      setBillingBusy(false)
+    }
+  }
 
   const openMessage = async (msg, isInbox) => {
     if (isInbox && !msg.is_read) {
@@ -78,23 +112,39 @@ export default function Account() {
           <p className={styles.sub}>
             {user?.is_paid
               ? '✅ Paid Member — Full research access enabled'
-              : '⚠️ Free Account — Contact us to unlock research access'}
+              : '⚠️ Free Account — Become a member to unlock research access'}
           </p>
         </div>
-        <button className="btn btn-primary btn-sm" onClick={() => setShowModal(true)}>✉️ Send Message</button>
+        <div className={styles.headerBtns}>
+          {user?.is_paid && !user?.is_admin && (
+            <button className="btn btn-ghost btn-sm" onClick={() => goToBilling('/billing/portal')} disabled={billingBusy}>
+              Manage Membership
+            </button>
+          )}
+          <button className="btn btn-primary btn-sm" onClick={() => setShowModal(true)}>✉️ Send Message</button>
+        </div>
       </div>
+
+      {billingMsg && (
+        <div className={`alert ${billingMsg.type === 'success' ? 'alert-success' : 'alert-error'}`}>{billingMsg.text}</div>
+      )}
 
       {/* Upgrade banner */}
       {!user?.is_paid && (
         <div className={styles.upgradeBanner}>
           <span className={styles.upgradeIcon}>🔒</span>
           <div>
-            <strong>Unlock Full Research Access</strong>
-            <p>Contact us to access genealogy databases, Polish vital records search, documents, and priority research support.</p>
+            <strong>Become a Member: $10/month</strong>
+            <p>Unlock the Polish and Italian vital records search, the Poland map, documents, and priority research support. Cancel anytime.</p>
           </div>
-          <Link to="/contact" className="btn btn-primary btn-sm" style={{ marginLeft: 'auto', whiteSpace: 'nowrap' }}>
-            Contact Us
-          </Link>
+          <button
+            className="btn btn-primary btn-sm"
+            style={{ marginLeft: 'auto', whiteSpace: 'nowrap' }}
+            onClick={() => goToBilling('/billing/checkout')}
+            disabled={billingBusy}
+          >
+            {billingBusy ? 'Redirecting…' : 'Join Now'}
+          </button>
         </div>
       )}
 

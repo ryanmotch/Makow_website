@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const fetch = require('node-fetch');
+const Stripe = require('stripe');
 const { getDb, query, run } = require('./db');
 
 const app = express();
@@ -11,7 +12,11 @@ const JWT_SECRET = process.env.JWT_SECRET || 'makow-genealogy-secret-2024';
 
 const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000').split(',').map(o => o.trim());
 app.use(cors({ origin: allowedOrigins, credentials: true }));
-app.use(express.json({ limit: '10mb' }));
+// Keep the raw body for the Stripe webhook - signature verification needs the exact bytes.
+app.use(express.json({
+  limit: '10mb',
+  verify: (req, res, buf) => { if (req.originalUrl === '/api/billing/webhook') req.rawBody = buf; },
+}));
 
 // Ensure the DB schema/seed is ready before any route runs (cheap no-op once warm).
 app.use((req, res, next) => {
@@ -37,6 +42,21 @@ function adminAuth(req, res, next) {
     if (!req.user.is_admin) return res.status(403).json({ error: 'Admin only' });
     next();
   });
+}
+
+// Checks paid status against the DB rather than the JWT, so a cancelled
+// membership loses access immediately instead of when the token expires.
+function paidAuth(req, res, next) {
+  auth(req, res, async () => {
+    const rows = await query('SELECT is_paid FROM users WHERE id = ?', [req.user.id]);
+    if (!rows[0]?.is_paid) return res.status(403).json({ error: 'Premium access required' });
+    next();
+  });
+}
+
+function issueToken(user) {
+  const payload = { id: user.id, name: user.name, email: user.email, is_paid: user.is_paid, is_admin: user.is_admin };
+  return { token: jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' }), user: payload };
 }
 
 // ── AUTH ──────────────────────────────────────────────────────────────────────
@@ -70,6 +90,136 @@ app.post('/api/login', async (req, res) => {
 app.get('/api/me', auth, async (req, res) => {
   const user = (await query('SELECT id, name, email, is_paid, is_admin FROM users WHERE id = ?', [req.user.id]))[0];
   res.json(user);
+});
+
+// Re-issues the JWT from current DB values, e.g. after paid status changes.
+app.post('/api/token/refresh', auth, async (req, res) => {
+  const user = (await query('SELECT id, name, email, is_paid, is_admin FROM users WHERE id = ?', [req.user.id]))[0];
+  if (!user) return res.status(401).json({ error: 'Account not found' });
+  res.json(issueToken(user));
+});
+
+// ── BILLING (Stripe) ──────────────────────────────────────────────────────────
+// $10/month membership. Checkout grants is_paid; the webhook keeps it in sync
+// with the subscription (renewal failures, cancellations).
+
+let stripeClient;
+function stripe() {
+  if (!stripeClient) stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY);
+  return stripeClient;
+}
+
+// Redirect back to whichever allowed frontend origin started the request.
+function frontendUrl(req) {
+  const origin = req.headers.origin;
+  return allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+}
+
+const ACTIVE_STATUSES = ['active', 'trialing', 'past_due'];
+
+app.post('/api/billing/checkout', auth, async (req, res) => {
+  try {
+    const user = (await query('SELECT * FROM users WHERE id = ?', [req.user.id]))[0];
+    if (!user) return res.status(401).json({ error: 'Account not found' });
+    if (user.is_paid) return res.status(400).json({ error: 'You already have a paid membership' });
+
+    let customerId = user.stripe_customer_id;
+    if (!customerId) {
+      const customer = await stripe().customers.create({
+        email: user.email, name: user.name, metadata: { user_id: String(user.id) },
+      });
+      customerId = customer.id;
+      await run('UPDATE users SET stripe_customer_id = ? WHERE id = ?', [customerId, user.id]);
+    }
+
+    const base = frontendUrl(req);
+    const session = await stripe().checkout.sessions.create({
+      mode: 'subscription',
+      customer: customerId,
+      client_reference_id: String(user.id),
+      line_items: [{
+        quantity: 1,
+        ...(process.env.STRIPE_PRICE_ID
+          ? { price: process.env.STRIPE_PRICE_ID }
+          : { price_data: {
+              currency: 'usd',
+              unit_amount: 1000,
+              recurring: { interval: 'month' },
+              product_data: { name: 'Makow Genealogy Membership' },
+            } }),
+      }],
+      subscription_data: { metadata: { user_id: String(user.id) } },
+      success_url: `${base}/account?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${base}/account?checkout=cancelled`,
+    });
+    res.json({ url: session.url });
+  } catch (err) {
+    console.error('Checkout error:', err);
+    res.status(500).json({ error: 'Could not start checkout. Please try again.' });
+  }
+});
+
+// Called when Stripe redirects back, so the member gets access immediately
+// without waiting for the webhook. Returns a fresh token with is_paid set.
+app.post('/api/billing/confirm', auth, async (req, res) => {
+  try {
+    const session = await stripe().checkout.sessions.retrieve(String(req.body.session_id || ''));
+    if (session.client_reference_id !== String(req.user.id)) {
+      return res.status(403).json({ error: 'This checkout belongs to another account' });
+    }
+    if (session.status === 'complete') {
+      await run('UPDATE users SET is_paid = 1, stripe_subscription_id = ? WHERE id = ?', [session.subscription, req.user.id]);
+    }
+    const user = (await query('SELECT id, name, email, is_paid, is_admin FROM users WHERE id = ?', [req.user.id]))[0];
+    res.json(issueToken(user));
+  } catch (err) {
+    console.error('Checkout confirm error:', err);
+    res.status(400).json({ error: 'Could not confirm payment' });
+  }
+});
+
+// Stripe-hosted page where members update their card or cancel.
+app.post('/api/billing/portal', auth, async (req, res) => {
+  try {
+    const user = (await query('SELECT stripe_customer_id FROM users WHERE id = ?', [req.user.id]))[0];
+    if (!user?.stripe_customer_id) return res.status(400).json({ error: 'No billing account found' });
+    const session = await stripe().billingPortal.sessions.create({
+      customer: user.stripe_customer_id,
+      return_url: `${frontendUrl(req)}/account`,
+    });
+    res.json({ url: session.url });
+  } catch (err) {
+    console.error('Billing portal error:', err);
+    res.status(500).json({ error: 'Could not open billing settings. Please try again.' });
+  }
+});
+
+app.post('/api/billing/webhook', async (req, res) => {
+  let event;
+  try {
+    event = stripe().webhooks.constructEvent(req.rawBody, req.headers['stripe-signature'], process.env.STRIPE_WEBHOOK_SECRET);
+  } catch (err) {
+    return res.status(400).send(`Webhook signature error: ${err.message}`);
+  }
+
+  try {
+    const obj = event.data.object;
+    if (event.type === 'checkout.session.completed' && obj.mode === 'subscription') {
+      await run('UPDATE users SET is_paid = 1, stripe_customer_id = ?, stripe_subscription_id = ? WHERE id = ?',
+        [obj.customer, obj.subscription, parseInt(obj.client_reference_id)]);
+    } else if (event.type === 'customer.subscription.updated' || event.type === 'customer.subscription.deleted') {
+      const paid = event.type === 'customer.subscription.updated' && ACTIVE_STATUSES.includes(obj.status);
+      // Only act on the subscription we have on record, so a late event for an
+      // old cancelled subscription can't revoke a member who re-subscribed.
+      await run(
+        'UPDATE users SET is_paid = ? WHERE stripe_customer_id = ? AND (stripe_subscription_id = ? OR stripe_subscription_id IS NULL)',
+        [paid ? 1 : 0, obj.customer, obj.id]);
+    }
+    res.json({ received: true });
+  } catch (err) {
+    console.error('Webhook handling error:', err);
+    res.status(500).json({ error: 'Webhook handler failed' });
+  }
 });
 
 // ── CONTACT FORM ──────────────────────────────────────────────────────────────
@@ -175,9 +325,7 @@ app.get('/api/users', auth, async (req, res) => {
 // allowing the frontend to embed it in an iframe via our proxy URL.
 
 // Proxy the PRADZIAD vital records search page for premium users
-app.get('/api/archives/search', auth, async (req, res) => {
-  if (!req.user.is_paid) return res.status(403).json({ error: 'Premium access required' });
-
+app.get('/api/archives/search', paidAuth, async (req, res) => {
   const { surname, parish, year_from, year_to, record_type } = req.query;
 
   // Build the search URL for szukajwarchiwach
@@ -214,9 +362,7 @@ app.get('/api/archives/search', auth, async (req, res) => {
 });
 
 // Proxy static assets from szukajwarchiwach (CSS, JS, images)
-app.get('/api/archives/asset/*', auth, async (req, res) => {
-  if (!req.user.is_paid) return res.status(403).end();
-  const path = req.params[0];
+app.get('/api/archives/asset/*', paidAuth, async (req, res) => {  const path = req.params[0];
   try {
     const upstream = await fetch(`https://www.szukajwarchiwach.gov.pl/${path}`, {
       headers: { 'User-Agent': 'Mozilla/5.0' },

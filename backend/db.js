@@ -25,6 +25,8 @@ async function initSchema() {
       created_at TIMESTAMPTZ DEFAULT NOW()
     )
   `);
+  await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_customer_id TEXT UNIQUE');
+  await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_subscription_id TEXT');
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS contact_submissions (

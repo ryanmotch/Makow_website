@@ -55,8 +55,8 @@ const TOPICS = [
     answer: 'We specialise in Eastern European, Jewish, and North American lineages, and have researched in 15 countries. Premium members also get access to our Polish and Italian archive search tools.',
   },
   {
-    keywords: ['premium', 'member', 'account', 'register', 'sign up', 'login', 'log in', 'archive search'],
-    answer: 'You can create a free account to message us and see your research updates. Premium members also get the Polish and Italian archive search tools.',
+    keywords: ['premium', 'member', 'membership', 'monthly', 'subscri', 'account', 'register', 'sign up', 'login', 'log in', 'archive search', 'join'],
+    answer: 'You can create a free account to message us and see your research updates. Membership is $10/month (cancel anytime) and unlocks the Polish and Italian archive search tools and the Poland map. Sign up, then click "Join Now" on your account page.',
     link: { to: '/register', label: 'Create an account' },
   },
   {

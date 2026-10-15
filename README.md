@@ -82,3 +82,22 @@ handlers use the same query style either way.
 | PUT | /api/admin/users/:id/paid | Admin | Toggle paid access |
 | GET | /api/admin/messages | Admin | All messages |
 | GET | /api/users | User | User list (for messaging) |
+| POST | /api/token/refresh | User | Re-issue JWT with current paid status |
+| POST | /api/billing/checkout | User | Start $10/month Stripe Checkout |
+| POST | /api/billing/confirm | User | Confirm checkout on return, grant paid |
+| POST | /api/billing/portal | User | Stripe billing portal (update card / cancel) |
+| POST | /api/billing/webhook | Stripe | Keeps `is_paid` in sync with the subscription |
+
+## Membership Billing (Stripe)
+Logged-in users click **Join Now** on `/account` to subscribe for $10/month via Stripe Checkout.
+On return, `is_paid` is set immediately; the webhook then keeps it in sync (failed renewals
+and cancellations revoke access). Backend env vars:
+
+| Var | Value |
+|-----|-------|
+| `STRIPE_SECRET_KEY` | `sk_live_...` (or `sk_test_...` for testing) |
+| `STRIPE_WEBHOOK_SECRET` | `whsec_...` from the webhook endpoint below |
+| `STRIPE_PRICE_ID` | Optional. A recurring Price ID; if unset, a $10/month price is created inline |
+
+Webhook endpoint: `https://<api-domain>/api/billing/webhook`, events
+`checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`.

@@ -1,6 +1,7 @@
 .header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; }
 .title { font-family: 'Playfair Display', serif; font-size: 1.9rem; }
 .sub { color: #6B6B6B; font-size: 0.9rem; margin-top: 0.3rem; }
+.headerBtns { display: flex; gap: 0.6rem; flex-wrap: wrap; }
 
 .upgradeBanner {
   display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
